@@ -1,6 +1,5 @@
 /* eslint-disable no-prototype-builtins */
 import { type ClassValue, clsx } from "clsx";
-import qs from "query-string";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -88,17 +87,14 @@ interface UrlQueryParams {
 }
 
 export function formUrlQuery({ params, key, value }: UrlQueryParams) {
-  const currentUrl = qs.parse(params);
-
-  currentUrl[key] = value;
-
-  return qs.stringifyUrl(
-    {
-      url: window.location.pathname,
-      query: currentUrl,
-    },
-    { skipNull: true }
-  );
+  const searchParams = new URLSearchParams(params);
+  if (value) {
+    searchParams.set(key, value);
+  } else {
+    searchParams.delete(key);
+  }
+  const queryString = searchParams.toString();
+  return `${typeof window !== "undefined" ? window.location.pathname : ""}${queryString ? `?${queryString}` : ""}`;
 }
 
 export function getAccountTypeColors(type: AccountTypes) {
