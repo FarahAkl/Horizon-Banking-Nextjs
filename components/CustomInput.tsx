@@ -30,7 +30,11 @@ const CustomInput = <T extends FieldValues>({
           <FieldLabel className="form-label">{label}</FieldLabel>
 
           <Input
-            {...field}
+            value={field.value ?? ""}
+            onChange={field.onChange}
+            onBlur={field.onBlur}
+            name={field.name}
+            ref={field.ref}
             aria-invalid={fieldState.invalid}
             placeholder={placeholder}
             className="input-class"
