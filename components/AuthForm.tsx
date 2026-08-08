@@ -12,6 +12,7 @@ import { Button } from "./ui/button";
 import { Loader2 } from "lucide-react";
 import CustomInput from "./CustomInput";
 import { useRouter } from "next/navigation";
+import { signIn, signUp } from "@/lib/actions/user.actions";
 
 const formSchema = (type: string) =>
   z.object({
@@ -71,17 +72,17 @@ const AuthForm = ({ type }: { type: string }) => {
       // Sign up with Appwrite & create a plain link token
 
       if (type === "sign-in") {
-        // const res = await signIn({
-        //   email: data.email,
-        //   password: data.password,
-        // });
+        const res = await signIn({
+          email: data.email,
+          password: data.password,
+        });
 
-        // if (res) router.push("/");
+        if (res) router.push("/");
       }
 
       if (type === "sign-up") {
-        // const newUser = await signUp(data);
-        // setUser(newUser);
+        const newUser = await signUp(data);
+        setUser(newUser);
       }
     } catch (error) {
       console.log(error);
