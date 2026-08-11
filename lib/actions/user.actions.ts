@@ -1,6 +1,6 @@
 "use server";
 
-import { ID } from "node-appwrite";
+import { ID, Query } from "node-appwrite";
 import { createAdminClient, createSessionClient } from "../appwrite";
 import { cookies } from "next/headers";
 import { encryptId, extractCustomerIdFromUrl, parseStringify } from "../utils";
@@ -20,24 +20,46 @@ const {
   APPWRITE_BANK_COLLECTION_ID: BANK_COLLECTION_ID,
 } = process.env;
 
+export const getUserInfo = async ({ userId }: getUserInfoProps) => {
+  try {
+    const { tablesDB } = await createAdminClient();
+
+    const user = await tablesDB.listRows(DATABASE_ID!, USER_COLLECTION_ID!, [
+      Query.equal("userId", userId),
+    ]);
+
+    return parseStringify(user.rows[0]);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const signIn = async ({ email, password }: signInProps) => {
   try {
     const { account } = await createAdminClient();
 
-    const res = await account.createEmailPasswordSession(email, password);
+    const session = await account.createEmailPasswordSession({
+      email,
+      password,
+    });
 
-    return parseStringify(res);
+    (await cookies()).set("appwrite-session", session.secret, {
+      path: "/",
+      httpOnly: true,
+      sameSite: "strict",
+      secure: true,
+    });
+
+    const user = await getUserInfo({ userId: session.userId });
+
+    return parseStringify(user);
   } catch (error) {
     console.log("Error: ", error);
   }
 };
 
-export const signUp = async ({password,...userData}: SignUpParams) => {
-  const {
-    email,
-    firstName,
-    lastName,
-  } = userData;
+export const signUp = async ({ password, ...userData }: SignUpParams) => {
+  const { email, firstName, lastName } = userData;
 
   let newUserAccount;
 
@@ -95,7 +117,9 @@ export const signUp = async ({password,...userData}: SignUpParams) => {
 export async function getLoggedInUser() {
   try {
     const { account } = await createSessionClient();
-    const user = await account.get();
+    const res = await account.get();
+
+    const user = await getUserInfo({ userId: res.$id });
 
     return parseStringify(user);
   } catch (error) {
@@ -218,5 +242,33 @@ export const exchangePublicToken = async ({
     });
   } catch (error) {
     console.error("An error occurred while creating exchanging token: ", error);
+  }
+};
+
+export const getBanks = async ({ userId }: getBanksProps) => {
+  try {
+    const { tablesDB } = await createAdminClient();
+
+    const banks = await tablesDB.listRows(DATABASE_ID!, BANK_COLLECTION_ID!, [
+      Query.equal("userId", userId),
+    ]);
+
+    return parseStringify(banks.rows);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getBank = async ({ documentId }: getBankProps) => {
+  try {
+    const { tablesDB } = await createAdminClient();
+
+    const bank = await tablesDB.listRows(DATABASE_ID!, BANK_COLLECTION_ID!, [
+      Query.equal("$id", documentId),
+    ]);
+
+    return parseStringify(bank.rows[0]);
+  } catch (error) {
+    console.log(error);
   }
 };
