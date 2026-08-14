@@ -115,13 +115,18 @@ export const getAccount = async ({ appwriteItemId }: getAccountProps) => {
     };
 
     // sort transactions by date such that the most recent transaction is first
-    // const allTransactions = [...transactions, ...transferTransactions].sort(
+    //   const allTransactions = [...transactions, ...transferTransactions].sort(
     //   (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
     // );
 
+    const allTransactions = [...transactions].sort(
+      // const allTransactions = [...transactions, ...transferTransactions].sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+    );
+
     return parseStringify({
       data: account,
-    //   transactions: allTransactions,
+      transactions: allTransactions,
     });
   } catch (error) {
     console.error("An error occurred while getting the account:", error);
@@ -181,6 +186,7 @@ export const getTransactions = async ({
     return parseStringify(transactions);
   } catch (error) {
     console.error("An error occurred while getting the accounts:", error);
+    return [];
   }
 };
 
