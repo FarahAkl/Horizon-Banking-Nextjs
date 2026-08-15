@@ -4,9 +4,11 @@ import TotalBalanceBox from "@/components/TotalBalanceBox";
 import RightSidebar from "@/components/RightSidebar";
 import { getLoggedInUser } from "@/lib/actions/user.actions";
 import { getAccount, getAccounts } from "@/lib/actions/bank.actions";
+import RecentTransations from "@/components/RecentTransations";
 
 const Home = async ({ searchParams }: SearchParamProps) => {
   const { id, page } = await searchParams;
+  const currentPage = Number(page as string || 1);
   const loggedIn = await getLoggedInUser();
   const accounts = await getAccounts({ userId: loggedIn.$id });
   if (!accounts) return;
@@ -32,12 +34,17 @@ const Home = async ({ searchParams }: SearchParamProps) => {
             totalCurrentBalance={accounts?.totalCurrentBalance}
           />
         </header>
-        RECENT TRANSACTIONS
+        <RecentTransations
+          transactions={account?.transactions}
+          accounts={accountsData}
+          appwriteItemId={appwriteItemId}
+          page={currentPage}
+        />
       </div>
       <RightSidebar
         user={loggedIn}
         transactions={account?.transactions}
-        banks={accountsData?.slice(0,2)}
+        banks={accountsData?.slice(0, 2)}
       />
     </section>
   );
