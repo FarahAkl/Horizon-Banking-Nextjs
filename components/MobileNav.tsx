@@ -54,7 +54,7 @@ const MobileNav = ({ user }: MobileNavProps) => {
           </Link>
 
           <div className="mobilenav-sheet">
-            <SheetClose>
+            {/* <SheetClose> */}
               <nav className="flex h-full flex-col gap-6 pt-3! px-4! text-white">
                 {sidebarLinks.map((link) => {
                   const isActive =
@@ -91,7 +91,7 @@ const MobileNav = ({ user }: MobileNavProps) => {
                 })}
                 <PlaidLink user={user} />
               </nav>
-            </SheetClose>
+            {/* </SheetClose> */}
             <Footer
               user={user}
               type="mobile"
